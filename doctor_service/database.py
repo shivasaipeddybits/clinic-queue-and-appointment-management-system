@@ -8,8 +8,14 @@ load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
+# No need for `check_same_thread` argument for PostgreSQL
+connect_args = {}
 
+# Create engine for PostgreSQL
 engine = create_engine(DATABASE_URL, connect_args=connect_args)
+
+# Create SessionLocal
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
+
+# Declare Base
 Base = declarative_base()

@@ -9,3 +9,4 @@ aiohttp
 python-multipart
 requests
 pydantic[email]
+boto3

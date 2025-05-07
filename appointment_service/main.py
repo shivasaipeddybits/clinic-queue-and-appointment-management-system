@@ -40,9 +40,11 @@ async def notify_user(appointment_id : int, db: Session):
         print(result)
         to = result.patient_email
         message = (
-            f"Hello {result.patient_name},<br> Your appointment with <b>Dr. {result.doctor_name} </b> is booked on <u> {result.appointment_time} </u>.<br> They are one of the greatest {result.doctor_specialization} of India.<br> Thank you for trusting us."
+            f"Hello {result.patient_name}, Your appointment with Dr. {result.doctor_name} is booked on {result.appointment_time}. They are one of the greatest {result.doctor_specialization} of India. Thank you for trusting us."
         )
         payload = {"to": to, "subject": "Clinic Appointment Booked", "message": message}
+        print ("I am at before async aiohttp function..")
         async with aiohttp.ClientSession() as session:
+            print ("Entered aiohttp..")
             async with session.post(NOTIFICATION_SERVICE_URL, json=payload) as resp:
                 print("Mail Notification Status : ", resp.status)

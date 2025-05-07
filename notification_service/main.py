@@ -1,23 +1,32 @@
-from dotenv import load_dotenv
 from fastapi import FastAPI, Request
-import os, requests
-
-load_dotenv()
+import boto3
+import json
 
 app = FastAPI()
+
+sns_client = boto3.client("sns", region_name="us-east-1")
+
+SNS_TOPIC_ARN = "arn:aws:sns:us-east-1:762233762592:clinic-system-topic"
 
 @app.post("/notify")
 async def notify(req: Request):
     body = await req.json()
-    to = body.get("to")
-    subject = body.get("subject")
-    message = body.get("message")
-    response = requests.post(
-        "https://api.mailgun.net/v3/sandbox1c8fc794354f4626a8ced3957cdcf223.mailgun.org/messages",
-        auth=("api", os.getenv('API_KEY')),
-        data={"from": "Mailgun Sandbox <postmaster@sandbox1c8fc794354f4626a8ced3957cdcf223.mailgun.org>",
-              "to": to,
-              "subject": subject,
-              "html": message})
-    print(response)
-    return {"status": response.status_code, "detail": response.text}
+
+    message_content = body.get("message", "")
+
+    plain_text_message = f"""
+    Notification from Clinic:
+
+    {message_content}
+
+    — The Clinic Team
+    """
+
+    response = sns_client.publish(
+        TopicArn=SNS_TOPIC_ARN,
+        Message=plain_text_message,  
+        Subject=body.get("subject", "Clinic Appointment Booked")
+    )
+
+    print("SNS response:", response)
+
